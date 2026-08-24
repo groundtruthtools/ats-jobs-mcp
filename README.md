@@ -1,5 +1,7 @@
 # ats-jobs-mcp
 
+<!-- mcp-name: io.github.groundtruthtools/ats-jobs-mcp -->
+
 **An MCP server for open job postings, read first-hand from the applicant-tracking
 system behind a company's careers page.** Ask your assistant what Anthropic is
 hiring for and get the answer from Anthropic's own board, not from a job
