@@ -6,15 +6,18 @@ Apify edition is the one with the golden records against employers' own pages,
 so it is the one that decides.
 """
 import hashlib
+import os
 from pathlib import Path
 
 import pytest
 
 HERE = Path(__file__).resolve().parent
 PACKAGE = HERE.parent / "src" / "ats_jobs_mcp"
-# Set when the repo is checked out beside the private toolshop repo. Skipped
-# otherwise, so a public contributor is not blocked by a repo they cannot see.
-UPSTREAM = Path("C:/Users/ianru/toolshop/tools/ats-job-listings/core")
+# The Apify edition's copy of these modules, if it is available locally.
+# Point ATS_UPSTREAM_CORE at it to run the parity check; without it the check
+# skips, so a contributor is never blocked by a repo they cannot see.
+UPSTREAM = Path(os.environ.get("ATS_UPSTREAM_CORE", "")) if os.environ.get(
+    "ATS_UPSTREAM_CORE") else Path("nonexistent")
 
 SHARED = ["ats.py", "salary.py", "directory.py",
           "listings/listing.py", "listings/adapter.py", "listings/money.py",
