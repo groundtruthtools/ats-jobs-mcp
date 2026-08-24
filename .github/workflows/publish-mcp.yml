@@ -1,0 +1,66 @@
+# Publish to the official MCP Registry on a version tag.
+#
+# OIDC rather than a stored token: the registry trusts a signed claim from
+# GitHub Actions that this workflow really is running in
+# groundtruthtools/ats-jobs-mcp. There is no secret to leak, rotate, or paste
+# into a device-code prompt.
+#
+# The PyPI upload stays manual on purpose. The registry hosts metadata only
+# and verifies ownership by finding the mcp-name marker in the package README,
+# so the package must already be on PyPI when this runs.
+name: Publish to MCP Registry
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write     # required for OIDC
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The parity check against the Apify edition needs a repo this runner
+      # cannot see, so it skips here. Everything else must pass.
+      - name: Run tests
+        run: python -m pytest tests -q
+
+      - name: Check server.json agrees with the published package
+        run: |
+          python - <<'PY'
+          import json, pathlib, re, sys
+          server = json.loads(pathlib.Path("server.json").read_text())
+          toml = pathlib.Path("pyproject.toml").read_text()
+          version = re.search(r'^version\s*=\s*"([^"]+)"', toml, re.M).group(1)
+          problems = []
+          if server["version"] != version:
+              problems.append(f'server.json {server["version"]} vs pyproject {version}')
+          for package in server["packages"]:
+              if package["version"] != version:
+                  problems.append(f'package entry {package["version"]} vs pyproject {version}')
+          marker = f'mcp-name: {server["name"]}'
+          if marker not in pathlib.Path("README.md").read_text():
+              problems.append(f"README is missing the ownership marker {marker!r}")
+          if problems:
+              sys.exit("server.json is out of step:\n  " + "\n  ".join(problems))
+          print(f"server.json, pyproject and README all agree on {version}")
+          PY
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to the registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish
+        run: ./mcp-publisher publish

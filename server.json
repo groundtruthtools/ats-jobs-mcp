@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.groundtruthtools/ats-jobs-mcp",
   "title": "ATS Jobs",
-  "description": "Open job postings read first-hand from the applicant-tracking system behind a company's careers page. 7,479 company boards mapped across Greenhouse and Ashby.",
+  "description": "Open jobs read from a company's own careers system: Greenhouse, Ashby, Lever.",
   "version": "1.0.0",
   "repository": {
     "url": "https://github.com/groundtruthtools/ats-jobs-mcp",
