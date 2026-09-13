@@ -58,6 +58,32 @@ jobs:
           print(f"server.json, pyproject and README all agree on {version}")
           PY
 
+      # The registry refuses to register a version that is not on PyPI yet,
+      # and a fresh upload takes a moment to appear on the index. Waiting here
+      # is cheaper than a failed run and a re-tag, which is how v1.1.0 was
+      # learned.
+      - name: Wait for the version to appear on PyPI
+        run: |
+          python - <<'CHECK'
+          import json, re, sys, time, urllib.error, urllib.request, pathlib
+          version = re.search(r'^version\s*=\s*"([^"]+)"',
+                              pathlib.Path("pyproject.toml").read_text(), re.M).group(1)
+          name = re.search(r'^name\s*=\s*"([^"]+)"',
+                           pathlib.Path("pyproject.toml").read_text(), re.M).group(1)
+          url = f"https://pypi.org/pypi/{name}/{version}/json"
+          for attempt in range(12):
+              try:
+                  urllib.request.urlopen(url, timeout=20).read()
+                  print(f"{name} {version} is on PyPI")
+                  sys.exit(0)
+              except urllib.error.HTTPError as e:
+                  if e.code != 404:
+                      raise
+              print(f"  not yet, waiting ({attempt + 1}/12)")
+              time.sleep(15)
+          sys.exit(f"{name} {version} never appeared on PyPI. Publish it before tagging.")
+          CHECK
+
       - name: Install mcp-publisher
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
