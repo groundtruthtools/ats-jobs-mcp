@@ -93,7 +93,32 @@ directly (`lever:spotify`) or pass its careers URL. Workable has a confirmed
 endpoint but no adapter yet, so it is not listed at all: a directory entry for
 something nothing can read is a broken promise.
 
-## Install
+## Use it with no install at all
+
+The server runs remotely. Point any MCP client that speaks Streamable HTTP at
+the URL and there is nothing to download:
+
+```json
+{
+  "mcpServers": {
+    "ats-jobs": {
+      "url": "https://ats-jobs-api.groundtruthtools.workers.dev/mcp"
+    }
+  }
+}
+```
+
+Checked 2026-09-13: of the job board servers in the official MCP registry,
+this is the only one with a remote transport. Every other one, including the
+PyPI build of this one, has to be installed first.
+
+The same thing answers plain HTTP, for agents that do not speak MCP:
+
+- `GET /openapi.json` for a tool-calling agent
+- `GET /llms.txt` for a model reading the service in prose
+- `GET /v1/jobs?company=stripe&limit=5`
+
+## Or install it locally
 
 ```bash
 pip install ats-jobs-mcp

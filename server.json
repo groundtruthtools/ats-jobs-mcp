@@ -3,7 +3,7 @@
   "name": "io.github.groundtruthtools/ats-jobs-mcp",
   "title": "ATS Jobs",
   "description": "Open jobs read from a company's own careers system: Greenhouse, Ashby, Lever.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": {
     "url": "https://github.com/groundtruthtools/ats-jobs-mcp",
     "source": "github"
@@ -12,10 +12,16 @@
     {
       "registryType": "pypi",
       "identifier": "ats-jobs-mcp",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "transport": {
         "type": "stdio"
       }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://ats-jobs-api.groundtruthtools.workers.dev/mcp"
     }
   ]
 }
